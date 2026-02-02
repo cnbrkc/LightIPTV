@@ -18,14 +18,22 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
     
     - name: Create Gradle Wrapper
-      run: gradle wrapper --gradle-version 8.4
+      run: |
+        mkdir -p gradle/wrapper
+        cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
+        distributionUrl=https\://services.gradle.org/distributions/gradle-8.4-bin.zip
+        EOF
+        gradle wrapper
     
-    - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace
+    - name: Make gradlew executable
+      run: chmod +x gradlew
+    
+    - name: Build APK
+      run: ./gradlew assembleDebug --no-daemon --stacktrace
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
